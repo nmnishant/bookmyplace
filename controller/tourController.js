@@ -89,3 +89,11 @@ exports.deleteTour = async function (req, res) {
     });
   }
 };
+
+exports.top5Tours = function (req, res, next) {
+  req.query.sort = '-ratingsAverage,price,-ratingsQuantity';
+  req.query.page = 1;
+  req.query.limit = 5;
+  req.query.fields = 'name,price,ratingsAverage,summary,imageCover';
+  next();
+};
