@@ -2,3 +2,4 @@
 .DS_Store
 .eslintrc.json
 .prettierrc
+node_modules
