@@ -47,7 +47,7 @@ class PerformQuery {
       (this.queryStr.limit && this.queryStr.limit > 20
         ? 20
         : this.queryStr.limit) || 20;
-    this.query = this.query.skip(page).limit(limit);
+    this.query = this.query.skip(page - 1).limit(limit);
     return this;
   }
 }
