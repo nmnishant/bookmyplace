@@ -47,6 +47,12 @@ const tourSchema = new mongoose.Schema(
     },
     discount: {
       type: Number,
+      validate: {
+        validator: function (discount) {
+          return discount < 100;
+        },
+        message: 'Discount cannot be 100% or more',
+      },
     },
     maxGroupSize: {
       type: Number,
