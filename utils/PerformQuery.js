@@ -44,8 +44,8 @@ class PerformQuery {
     const page = this.queryStr.page * 1 || 1;
     this.queryStr.limit *= 1;
     const limit =
-      (this.queryStr.limit && this.queryStr.limit > 100
-        ? 100
+      (this.queryStr.limit && this.queryStr.limit > 20
+        ? 20
         : this.queryStr.limit) || 20;
     this.query = this.query.skip(page).limit(limit);
     return this;

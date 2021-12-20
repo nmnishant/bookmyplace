@@ -12,6 +12,10 @@ router
   .route('/top-5')
   .get(tourController.top5Tours, tourController.getAllTours);
 
+router.route('/stats').get(tourController.tourStats);
+
+router.route('/year/:year').get(tourController.toursInGivenYear);
+
 router
   .route('/:id')
   .get(tourController.getTour)
