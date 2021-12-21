@@ -14,8 +14,8 @@ class PerformQuery {
       /\b(gt|gte|lt|lte|ne)\b/g,
       (word) => `$${word}`
     ); // b - to match only exact words, g - to replace all not just first
-    queryObj = JSON.parse(queryStr);
 
+    queryObj = JSON.parse(queryStr);
     this.query = this.query.find(queryObj);
     return this;
   }
@@ -47,7 +47,8 @@ class PerformQuery {
       (this.queryStr.limit && this.queryStr.limit > 20
         ? 20
         : this.queryStr.limit) || 20;
-    this.query = this.query.skip(page - 1).limit(limit);
+    const skip = (page - 1) * limit;
+    this.query = this.query.skip(skip).limit(limit);
     return this;
   }
 }
