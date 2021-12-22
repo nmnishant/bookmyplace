@@ -37,6 +37,7 @@ const userSchema = new mongoose.Schema({
     type: 'String',
     default: 'default.png',
   },
+  passwordChangedAt: Date,
 });
 
 // pre hooks only run when save() and create()
@@ -52,6 +53,17 @@ userSchema.pre('save', async function (next) {
 
 userSchema.methods.checkPassword = async function (givenPass, userPass) {
   return await bcrypt.compare(givenPass, userPass);
+};
+
+userSchema.methods.changedPasswordAfter = function (jwtTimeStamp) {
+  if (this.passwordChangedAt) {
+    const userPassChangeTimeStamp = parseInt(
+      this.passwordChangedAt.getTime() / 1000,
+      10
+    );
+    return userPassChangeTimeStamp > jwtTimeStamp;
+  }
+  return false;
 };
 
 const User = mongoose.model('User', userSchema);
