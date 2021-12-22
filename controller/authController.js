@@ -30,9 +30,9 @@ exports.protect = catchAsync(async (req, res, next) => {
   if (currentUser.changedPasswordAfter(payload.iat))
     return next(new AppError('User changed his password. Login again!', 401));
 
-  res.status(200).json({
-    status: 'success',
-  });
+  // Login is valid : Store user on req for further use
+  req.user = currentUser;
+  next();
 });
 
 exports.login = catchAsync(async (req, res, next) => {
