@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -42,6 +43,8 @@ const userSchema = new mongoose.Schema({
     type: 'String',
     default: 'user',
   },
+  resetToken: String,
+  resetTokenExpiresIn: Date,
 });
 
 // pre hooks only run when save() and create()
@@ -54,6 +57,27 @@ userSchema.pre('save', async function (next) {
   }
   next();
 });
+
+userSchema.pre('save', async function (next) {
+  if (this.isNew || !this.isModified('password')) next();
+  this.passwordChangedAt = Date.now() - 1000; // -1000 Bcoz mongoose takes few more milliseconds to update field than JWT token issue, and that would be issue if passwardChangedAt > JWT_TimeStamp
+  next();
+});
+
+userSchema.methods.generateResetToken = function () {
+  // Create hashed string hex encoded
+  const resetToken = crypto.randomBytes(16).toString('hex');
+  const hashedToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+  this.resetToken = hashedToken;
+
+  const expiresIn = 10; // in minutes
+  this.resetTokenExpiresIn = Date.now() + expiresIn * 60 * 1000;
+
+  return resetToken;
+};
 
 userSchema.methods.checkPassword = async function (givenPass, userPass) {
   return await bcrypt.compare(givenPass, userPass);
