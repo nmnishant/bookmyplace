@@ -21,13 +21,13 @@ exports.restrictTo = function (...roles) {
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
   // 1. Get user password
-  const user = await User.findById(req.user.id).select('+password');
+  const user = await User.findById(req.user._id).select('+password');
   const userPass = user.password;
   const { currentPassword } = req.body;
 
   // 2. Check if given current password is correct
   if (!(await user.checkPassword(currentPassword, userPass)))
-    next(new AppError(`Current password is incorrect`));
+    return next(new AppError(`Current password is incorrect`));
 
   // 3. Update password ( passwordChangedAt property will be set by pre save hook if password modified or new user )
   user.password = req.body.password;
