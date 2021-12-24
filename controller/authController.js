@@ -9,6 +9,14 @@ const signToken = (id) =>
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
+exports.restrictTo = function (...roles) {
+  return function (req, _, next) {
+    const userRole = req.user.role;
+    if (roles.includes(userRole)) return next();
+    next(new AppError(`You dont have permission to perform this action`));
+  };
+};
+
 exports.protect = catchAsync(async (req, res, next) => {
   // Get JWT token if present else send error
   const authString = req.headers.authorization;

@@ -38,6 +38,10 @@ const userSchema = new mongoose.Schema({
     default: 'default.png',
   },
   passwordChangedAt: Date,
+  role: {
+    type: 'String',
+    default: 'user',
+  },
 });
 
 // pre hooks only run when save() and create()
