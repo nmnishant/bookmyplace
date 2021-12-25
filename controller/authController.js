@@ -11,6 +11,25 @@ const signToken = (id) =>
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
+const createSendToken = function (id, statusCode, message, res) {
+  // Generating JWT tokens
+  const token = signToken(id);
+
+  // Creating JWT cookie
+  res.cookie('JWT', token, {
+    httpOnly: true,
+    expires: process.env.COOKIES_EXPIRES_IN * 24 * 60 * 60 * 1000, // days to milliseconds
+    secure: process.env.NODE_ENV === 'production',
+  });
+
+  // Sending response
+  res.status(statusCode).json({
+    status: 'success',
+    message,
+    token,
+  });
+};
+
 exports.restrictTo = function (...roles) {
   return function (req, _, next) {
     const userRole = req.user.role;
@@ -35,13 +54,7 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   await user.save();
 
   // 4. Getting token and sending response
-  const token = signToken(user._id);
-
-  res.status(200).json({
-    status: 'success',
-    message: 'Password changed successfully',
-    token,
-  });
+  createSendToken(user._id, 200, 'Password changed successfully', res);
 });
 
 exports.forgotPassword = catchAsync(async (req, res, next) => {
@@ -95,12 +108,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   await user.save();
 
   // 4. Generate JWT token and send response
-  const token = signToken({ id: user._id });
-  res.status(200).json({
-    status: 'success',
-    message: 'Password has been reset successfully',
-    token,
-  });
+  createSendToken(user._id, 200, 'Password has been reset successfully', res);
 });
 
 exports.protect = catchAsync(async (req, res, next) => {
@@ -147,13 +155,7 @@ exports.login = catchAsync(async (req, res, next) => {
   }
 
   // 3. Create JWT token
-  const token = signToken(user._id);
-
-  // 4. Sending response
-  res.status(200).json({
-    status: 'success',
-    token,
-  });
+  createSendToken(user._id, 200, 'Login successful', res);
 });
 
 exports.signup = catchAsync(async (req, res) => {
@@ -164,10 +166,5 @@ exports.signup = catchAsync(async (req, res) => {
     confirmPassword: req.body.confirmPassword,
   });
 
-  const token = signToken(newUser._id);
-
-  res.status(201).json({
-    status: 'success',
-    token,
-  });
+  createSendToken(newUser._id, 200, 'Signup success', res);
 });

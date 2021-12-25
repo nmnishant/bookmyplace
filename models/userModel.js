@@ -45,6 +45,11 @@ const userSchema = new mongoose.Schema({
   },
   resetToken: String,
   resetTokenExpiresIn: Date,
+  active: {
+    type: Boolean,
+    default: true,
+    select: false,
+  },
 });
 
 // pre hooks only run when save() and create()
@@ -61,6 +66,12 @@ userSchema.pre('save', async function (next) {
 userSchema.pre('save', async function (next) {
   if (this.isNew || !this.isModified('password')) next();
   this.passwordChangedAt = Date.now() - 1000; // -1000 Bcoz mongoose takes few more milliseconds to update field than JWT token issue, and that would be issue if passwardChangedAt > JWT_TimeStamp
+  next();
+});
+
+// Prevent deleted user to appear in "Get All Users" - implemening pre find hook in userModel
+userSchema.pre(/^find/, function (next) {
+  this.find({ active: { $ne: false } });
   next();
 });
 
